@@ -1,5 +1,9 @@
 const express = require('express')
+const cors = require('cors')
 const app = express()
+
+app.use(cors())
+
 const http = require('http').Server(app)
 
 var PORT = process.env.PORT || 3002;
@@ -28,4 +32,4 @@ var gameResponse = {
 
 app.get('/', (req, res) => res.json(gameResponse));
 
-http.listen(PORT, () => console.log('Example app listening on port 3002!'))
+http.listen(PORT, () => console.log('Example app listening on port '+PORT))
