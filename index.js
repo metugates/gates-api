@@ -1,6 +1,8 @@
 const express = require('express')
 const app = express()
+const http = require('http').Server(app)
 
+var PORT = process.env.PORT || 3002;
 
 var gameInfo = {
   "name": "BlueBox",
@@ -26,4 +28,4 @@ var gameResponse = {
 
 app.get('/', (req, res) => res.json(gameResponse));
 
-app.listen(3002, () => console.log('Example app listening on port 3002!'))
+http.listen(PORT, () => console.log('Example app listening on port 3002!'))
