@@ -1,0 +1,14 @@
+{
+  "name": "gates-api",
+  "version": "1.0.0",
+  "description": "gates backend api",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "tosunami",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.16.3"
+  }
+}
