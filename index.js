@@ -26,10 +26,36 @@ var gameInfo2 = {
   "link": "https://play.google.com/store/apps/details?id=com.Tosunami.SynthBeats",
 }
 
-var gameResponse = {
-  games: [gameInfo,gameInfo2],
+var question1 = {
+    "id":1,
+    "topic":"AdMob Integration Problem",
+    "description":"Hello, I cannot fix this AdMob integration error that keeps killing me. Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Thanks!",
+    "author":"Cengizhan Basak",
+    "date":"24-07-2018",
+    "category":"Unity",
 }
 
-app.get('/', (req, res) => res.json(gameResponse));
+var question2 = {
+    "id":1,
+    "topic":"Cannot detect collision",
+    "description":"Hello, i've been working on a 2D Platformer game but my Rigidbody cannot detect the collision. Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Thanks!",
+    "author":"John Doe",
+    "date":"24-07-2018",
+    "category":"Unity",
+}
+
+var productsResponse = {
+    products: [gameInfo,gameInfo2],
+}
+
+var questionsResponse = {
+    questions: [question1,question2,question1,question2],
+}
+
+app.get('/producst', (req, res) => res.json(productsResponse));
+
+app.get('/questions',(req, res) => res.json(questionResponse));
+
+app.get('/questions/:no',(req,res) => res.json(question))
 
 http.listen(PORT, () => console.log('Example app listening on port '+PORT))
