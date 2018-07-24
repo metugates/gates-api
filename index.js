@@ -52,10 +52,10 @@ var questionsResponse = {
     questions: [question1,question2,question1,question2],
 }
 
-app.get('/producst', (req, res) => res.json(productsResponse));
+app.get('/products', (req, res) => res.json(productsResponse));
 
-app.get('/questions',(req, res) => res.json(questionResponse));
+app.get('/questions',(req, res) => res.json(questionsResponse));
 
-app.get('/questions/:no',(req,res) => res.json(question))
+app.get('/questions/:no',(req,res) => res.json(question1))
 
 http.listen(PORT, () => console.log('Example app listening on port '+PORT))
