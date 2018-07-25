@@ -1,8 +1,12 @@
 const express = require('express')
 const cors = require('cors')
 const app = express()
+const bodyParser = require('body-parser')
+
 
 app.use(cors())
+app.use(bodyParser.urlencoded({extended:false}))
+app.use(bodyParser.json())
 
 const http = require('http').Server(app)
 
@@ -27,7 +31,7 @@ var gameInfo2 = {
 }
 
 var question1 = {
-    "id":1,
+    "id":0,
     "topic":"AdMob Integration Problem",
     "description":"Hello, I cannot fix this AdMob integration error that keeps killing me. Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Thanks!",
     "author":"Cengizhan Basak",
@@ -49,13 +53,28 @@ var productsResponse = {
 }
 
 var questionsResponse = {
-    questions: [question1,question2,question1,question2],
+    questions: [question1,question2],
 }
 
 app.get('/products', (req, res) => res.json(productsResponse));
 
 app.get('/questions',(req, res) => res.json(questionsResponse));
 
-app.get('/questions/:no',(req,res) => res.json(question1))
+app.get('/questions/:no',(req,res) => res.json(question1));
+
+app.post('/questions/new',(req,res) => {
+  console.log(req.body);
+  newQuestion = {
+    "topic":req.body.topic,
+    "id":questionsResponse.questions.length,
+    "topic":req.body.topic,
+    "description":req.body.description,
+    "author":req.body.author,
+    "date":new Date().toDateString(),
+    "category":req.body.category,
+  }
+  questionsResponse.questions.push(newQuestion);
+  res.send("OK")
+})
 
 http.listen(PORT, () => console.log('Example app listening on port '+PORT))
