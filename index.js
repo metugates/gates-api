@@ -1,7 +1,17 @@
 const express = require('express')
 const cors = require('cors')
 const app = express()
+const sqlite3 = require('sqlite3').verbose();
 const bodyParser = require('body-parser')
+const dotenv = require('dotenv').load();
+const path = require('path');
+
+let db = new sqlite3.Database('gates.sqlite3', createTable);
+
+function createTable() {
+    db.run("CREATE TABLE IF NOT EXISTS  products ( name varchar(25) NOT NULL UNIQUE, author TEXT NOT NULL, description TEXT, releasedate TEXT, imagelink TEXT NOT NULL, link1 TEXT NOT NULL, link2 TEXT);");
+
+}
 
 
 app.use(cors())
@@ -30,51 +40,33 @@ var gameInfo2 = {
   "link": "https://play.google.com/store/apps/details?id=com.Tosunami.SynthBeats",
 }
 
-var question1 = {
-    "id":0,
-    "topic":"AdMob Integration Problem",
-    "description":"Hello, I cannot fix this AdMob integration error that keeps killing me. Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Thanks!",
-    "author":"Cengizhan Basak",
-    "date":"24-07-2018",
-    "category":"Unity",
-}
-
-var question2 = {
-    "id":1,
-    "topic":"Cannot detect collision",
-    "description":"Hello, i've been working on a 2D Platformer game but my Rigidbody cannot detect the collision. Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Thanks!",
-    "author":"John Doe",
-    "date":"24-07-2018",
-    "category":"Unity",
-}
-
 var productsResponse = {
     products: [gameInfo,gameInfo2],
 }
 
-var questionsResponse = {
-    questions: [question1,question2],
-}
 
 app.get('/products', (req, res) => res.json(productsResponse));
 
-app.get('/questions',(req, res) => res.json(questionsResponse));
+app.get(`/products/new/${process.env.SECRETKEY}`,(req,res)=>{
+    res.sendFile(path.join(__dirname+'/form.html'));
+})
 
-app.get('/questions/:no',(req,res) => res.json(question1));
+app.post('/products', (req,res)=> {
+    let name = req.body.name;
+    let author = req.body.author;
+    let descr = req.body.description;
+    let releaseDate = req.body.releaseDate;
+    let imageLink = req.body.imageLink;
+    let link1 = req.body.link1;
+    let link2 = req.body.link2;
 
-app.post('/questions/new',(req,res) => {
-  console.log(req.body);
-  newQuestion = {
-    "topic":req.body.topic,
-    "id":questionsResponse.questions.length,
-    "topic":req.body.topic,
-    "description":req.body.description,
-    "author":req.body.author,
-    "date":new Date().toDateString(),
-    "category":req.body.category,
-  }
-  questionsResponse.questions.push(newQuestion);
-  res.send("OK")
+    db.run("INSERT INTO active_members ( name, author, description, releasedate, imagelink, link, link2 ) VALUES ( ? )", name,author,descr,releaseDate,imageLink,link1,link2,(err,result) => {
+        res.send("OK");
+    })
 })
 
 http.listen(PORT, () => console.log('Example app listening on port '+PORT))
+
+process.on('exit', () => {
+  db.close();
+})
