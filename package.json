@@ -5,15 +5,18 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node index.js"
+    "start": "node index.js",
+    "makeSU": "node makeSU.js"
   },
   "author": "tosunami",
   "license": "ISC",
   "dependencies": {
     "body-parser": "^1.18.3",
     "cors": "^2.8.4",
+    "crypto": "^1.0.1",
     "dotenv": "^6.0.0",
     "express": "^4.16.3",
+    "express-session": "^1.15.6",
     "path": "^0.12.7",
     "sqlite3": "^4.0.2"
   }
