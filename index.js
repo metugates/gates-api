@@ -45,13 +45,20 @@ var productsResponse = {
 }
 
 
-app.get('/products', (req, res) => res.json(productsResponse));
+app.get('/products', (req, res) => {
+    db.all('SELECT * FROM products', [], (err,rows)=>{
+        if (err) {
+            throw err;
+        }
+        res.json(rows)
+    })
+});
 
 app.get(`/products/new/${process.env.SECRETKEY}`,(req,res)=>{
     res.sendFile(path.join(__dirname+'/form.html'));
 })
 
-app.post('/products', (req,res)=> {
+app.post('/products/', (req,res) => {
     let name = req.body.name;
     let author = req.body.author;
     let descr = req.body.description;
@@ -59,9 +66,12 @@ app.post('/products', (req,res)=> {
     let imageLink = req.body.imageLink;
     let link1 = req.body.link1;
     let link2 = req.body.link2;
-
-    db.run("INSERT INTO active_members ( name, author, description, releasedate, imagelink, link, link2 ) VALUES ( ? )", name,author,descr,releaseDate,imageLink,link1,link2,(err,result) => {
-        res.send("OK");
+    db.run("INSERT INTO products ( name, author, description, releasedate, imagelink, link1, link2 ) VALUES ( ?, ?, ?, ?, ?, ?, ? )", name,author,descr,releaseDate,imageLink,link1,link2,(err,result) => {
+        if(err){
+            console.log(err);
+        }else{
+            res.send("OK");
+        }
     })
 })
 
