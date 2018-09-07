@@ -1,0 +1,33 @@
+<%- include ./partials/header.ejs %>
+
+<div class="productForm">
+    <% if(mode=='new') {%>
+    <h1>New Product</h1>
+    <form method="post" action="/products">
+        Name:<input type="text" name="name" /><br/>
+        Author: <input type="text" name="author" /><br/>
+        Description: <textarea name="description" ></textarea><br/>
+        Release Date: <input type="date" name="releaseDate" /><br/>
+        Image Link: <input type="text" name="imageLink" /><br/>
+        Link1: <input type="text" name="link1" /><br/>
+        Link2: <input type="text" name="link2" /><br/>
+        <input type="submit" value="Submit"/>
+    </form>
+    <% } %>
+
+    <% if(mode=='edit') {%>
+    <h1>Edit Product</h1>
+    <form method="put" action="/products/edit/<%=product.productid%>">
+        Name:<input type="text" name="name" value="<%= product.name %>" /><br/>
+        Author: <input type="text" name="author" value="<%= product.author %>" /><br/>
+        Description: <textarea name="description" value="<%= product.description %>" ></textarea><br/>
+        Release Date: <input type="date" name="releaseDate" value="<%= product.releasedate %>" /><br/>
+        Image Link: <input type="text" name="imageLink" value="<%= product.imagelink %>" /><br/>
+        Link1: <input type="text" name="link1" value="<%= product.link1 %>" /><br/>
+        Link2: <input type="text" name="link2" value="<%= product.link2 %>" /><br/>
+        <input type="submit" value="Submit"/>
+    </form>
+    <% } %>
+</div>
+
+<%- include ./partials/footer.ejs %>

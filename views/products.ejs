@@ -1,0 +1,33 @@
+<%- include ./partials/header.ejs %>
+<div class="productsListPage">
+    <h1>Products</h1>
+
+    <div class="sidemenu">
+        <a href="/products/new" class="action-button-add"><i class="fas fa-plus"></i> New Product</a>
+    </div>
+
+    <ul class="productsList">
+        <li>
+            <div class="productInfo">
+                <div class="product-id">ID</div>
+                <div class="product-name">Product Name</div>
+                <div class="product-date">Release Date</div>
+                <div class="actions">Actions</div>
+            </div>
+        </li>
+        <% products.forEach( (product) => { %>
+            <li>
+                <div class="productInfo">
+                    <div class="product-id"><%= product.productid %></div>
+                    <div class="product-name"><%= product.name %></div>
+                    <div class="product-date"><%= product.releasedate %></div>
+                    <div class="actions">
+                        <a href="/products/delete/<%= product.productid %>" class="action-button-delete"><i class="fas fa-trash-alt"></i></a>
+                        <a href="/products/edit/<%= product.productid %>" class="action-button-edit"><i class="fas fa-edit"></i></a>
+                    </div>
+                </div>
+            </li>
+        <% }) %>
+    </ul>
+</div>
+<%- include ./partials/footer.ejs %>

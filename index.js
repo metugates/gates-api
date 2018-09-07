@@ -7,17 +7,18 @@ const dotenv = require('dotenv').load();
 const path = require('path');
 const session = require('express-session');
 const crypto = require('crypto');
-
+const ejs = require('ejs');
 
 let db = new sqlite3.Database('gates.sqlite3', createTable);
 
 function createTable() {
     db.run("CREATE TABLE IF NOT EXISTS  superusers ( username varchar(25) NOT NULL UNIQUE, password TEXT NOT NULL);");
-    db.run("CREATE TABLE IF NOT EXISTS  products ( name varchar(25) NOT NULL UNIQUE, author TEXT NOT NULL, description TEXT, releasedate TEXT, imagelink TEXT NOT NULL, link1 TEXT NOT NULL, link2 TEXT);");
+    db.run("CREATE TABLE IF NOT EXISTS  products ( productid INTEGER PRIMARY KEY, name varchar(25) NOT NULL UNIQUE, author TEXT NOT NULL, description TEXT, releasedate TEXT, imagelink TEXT NOT NULL, link1 TEXT NOT NULL, link2 TEXT);");
 
 }
 
 
+app.use(express.static(__dirname + '/public'));
 app.use(cors());
 app.use(bodyParser.urlencoded({extended:false}));
 app.use(bodyParser.json());
@@ -25,7 +26,7 @@ app.use(session({
   secret: 'gizliGATES',
   resave: false,
   saveUninitialized: true,
-  cookie: { maxAge: 360000 }
+  cookie: { maxAge: 3600000 }
 }));
 
 const http = require('http').Server(app);
@@ -37,16 +38,9 @@ app.get('/', (req,res)=>{
     req.session.name="standard";
 });
 
-app.get('/products', (req, res) => {
-    db.all('SELECT * FROM products', [], (err,rows)=>{
-        if (err) {
-            throw err;
-        }
-        res.json(rows)
-    })
-});
+// ADMIN
 
-app.get('/admin',function(req,res){
+app.get('/admin',(req,res)=>{
     console.log(req.session.name);
     if(req.session.name=="superuser"){
         res.sendFile(path.join(__dirname+'/src/adminPanel.html'));
@@ -56,14 +50,28 @@ app.get('/admin',function(req,res){
 
 });
 
-app.get('/admin/login',function(req,res){
+app.get('/admin/products',(req,res)=>{
+    if(req.session.name=="superuser"){
+        db.all('SELECT * FROM products', [], (err,products)=>{
+            if (err) {
+                throw err;
+            }
+            res.render('./products.ejs',{ products:products });
+
+        })
+    }else{
+        res.redirect('/');
+    }
+});
+
+app.get('/admin/login',(req,res)=>{
 
     res.sendFile(path.join(__dirname+'/src/loginForm.html'));
 });
 
 
 
-app.post('/admin/login',function(req,res){
+app.post('/admin/login',(req,res)=>{
     var username = req.body.username;
     crypto.pbkdf2(req.body.password, 'saltystuff', 100000, 64, 'sha512',(err,hashed) => {
         db.serialize(function(){
@@ -88,21 +96,53 @@ app.post('/admin/login',function(req,res){
     });
 });
 
-app.get('/admin/logout',function(req,res){
+app.get('/admin/logout',(req,res)=>{
   req.session.name = "standard";
   res.redirect('/');
 });
 
 
+// PRODUCTS
+
+app.get('/products', (req, res) => {
+    db.all('SELECT * FROM products', [], (err,rows)=>{
+        if (err) {
+            throw err;
+        }
+        res.json(rows)
+    })
+});
+
 app.get(`/products/new`,(req,res)=>{
     if(req.session.name=="superuser"){
-        res.sendFile(path.join(__dirname+'/src/form.html'));
+        res.render('./form.ejs',{ mode:'new', product:{} })
     }else{
         res.redirect('/');
     }
 });
 
+app.get(`/products/delete/:id`,(req,res)=>{
+    if(req.session.name=="superuser"){
+        db.run(`DELETE FROM products WHERE productid=?`, req.params.id, function(err) {
+              if (err) {
+                return console.error(err.message);
+              }
+              console.log(`Row(s) deleted ${this.changes}`);
+              res.redirect('/admin/products')
+        });
+    }else{
+        res.redirect('/');
+    }
+});
 
+app.get('/products/edit/:id',(req,res)=>{
+    db.get('SELECT * FROM products WHERE productid=?',req.params.id,(err,row)=>{
+        if(err){
+            throw err;
+        }
+        res.render('./form.ejs',{ mode:'edit', product:row })
+    })
+});
 
 app.post('/products/', (req,res) => {
     if(req.session.name=="superuser"){
@@ -117,7 +157,7 @@ app.post('/products/', (req,res) => {
             if(err){
                 console.log(err);
             }else{
-                res.send("OK");
+                res.redirect('/admin/products')
             }
         })
     }else{
