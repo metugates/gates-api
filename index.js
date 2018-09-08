@@ -12,8 +12,8 @@ const ejs = require('ejs');
 let db = new sqlite3.Database('gates.sqlite3', createTable);
 
 function createTable() {
-    db.run("CREATE TABLE IF NOT EXISTS  superusers ( username varchar(25) NOT NULL UNIQUE, password TEXT NOT NULL);");
-    db.run("CREATE TABLE IF NOT EXISTS  products ( productid INTEGER PRIMARY KEY, name varchar(25) NOT NULL UNIQUE, author TEXT NOT NULL, description TEXT, releasedate TEXT, imagelink TEXT NOT NULL, link1 TEXT NOT NULL, link2 TEXT);");
+    db.run('CREATE TABLE IF NOT EXISTS  superusers ( username varchar(25) NOT NULL UNIQUE, password TEXT NOT NULL);');
+    db.run('CREATE TABLE IF NOT EXISTS  products ( productid INTEGER PRIMARY KEY, name varchar(25) NOT NULL UNIQUE, author TEXT NOT NULL, description TEXT, releasedate TEXT, imagelink TEXT NOT NULL, link1 TEXT NOT NULL, link2 TEXT);');
 
 }
 
@@ -34,8 +34,14 @@ const http = require('http').Server(app);
 var PORT = process.env.PORT || 3002;
 
 app.get('/', (req,res)=>{
-    res.send('Hello');
-    req.session.name="standard";
+    if(req.session.name != "superuser"){
+        req.session.name="standard";
+        res.send('Hello');
+    }else{
+        res.redirect('/admin');
+    }
+
+
 });
 
 // ADMIN
@@ -43,7 +49,7 @@ app.get('/', (req,res)=>{
 app.get('/admin',(req,res)=>{
     console.log(req.session.name);
     if(req.session.name=="superuser"){
-        res.sendFile(path.join(__dirname+'/src/adminPanel.html'));
+        res.redirect('/admin/products');
     }else{
         res.redirect('/')
     }
@@ -75,7 +81,7 @@ app.post('/admin/login',(req,res)=>{
     var username = req.body.username;
     crypto.pbkdf2(req.body.password, 'saltystuff', 100000, 64, 'sha512',(err,hashed) => {
         db.serialize(function(){
-            var stmt = db.prepare("SELECT EXISTS(SELECT * FROM superusers WHERE username=? )")
+            var stmt = db.prepare('SELECT EXISTS(SELECT * FROM superusers WHERE username=? )')
             stmt.get( username,function(err,result){
                 if( result[Object.keys(result)[0]] == 1 ){
                     db.get("SELECT * FROM superusers WHERE username=?", username, (err, res1) => {
@@ -144,6 +150,26 @@ app.get('/products/edit/:id',(req,res)=>{
     })
 });
 
+app.post('/products/edit/:id',(req,res)=>{
+    if(req.session.name=="superuser"){
+        let name = req.body.name;
+        let author = req.body.author;
+        let descr = req.body.description;
+        let releaseDate = req.body.releaseDate;
+        let imageLink = req.body.imageLink;
+        let link1 = req.body.link1;
+        let link2 = req.body.link2;
+        db.run('UPDATE products SET name=?, author=?, description=?, releasedate=?, imagelink=?, link1=?, link2=? WHERE productid=?;',name,author,descr,releaseDate,imageLink,link1,link2,req.params.id,(err,result)=>{
+            if(err){
+                throw err;
+            }
+            res.redirect('/admin/products');
+        });
+    }else{
+        res.redirect('/');
+    }
+});
+
 app.post('/products/', (req,res) => {
     if(req.session.name=="superuser"){
         let name = req.body.name;
@@ -153,7 +179,7 @@ app.post('/products/', (req,res) => {
         let imageLink = req.body.imageLink;
         let link1 = req.body.link1;
         let link2 = req.body.link2;
-        db.run("INSERT INTO products ( name, author, description, releasedate, imagelink, link1, link2 ) VALUES ( ?, ?, ?, ?, ?, ?, ? )", name,author,descr,releaseDate,imageLink,link1,link2,(err,result) => {
+        db.run('INSERT INTO products ( name, author, description, releasedate, imagelink, link1, link2 ) VALUES ( ?, ?, ?, ?, ?, ?, ? )', name,author,descr,releaseDate,imageLink,link1,link2,(err,result) => {
             if(err){
                 console.log(err);
             }else{

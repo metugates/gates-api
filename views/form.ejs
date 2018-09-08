@@ -17,7 +17,7 @@
 
     <% if(mode=='edit') {%>
     <h1>Edit Product</h1>
-    <form method="put" action="/products/edit/<%=product.productid%>">
+    <form method="post" action="/products/edit/<%=product.productid%>">
         Name:<input type="text" name="name" value="<%= product.name %>" /><br/>
         Author: <input type="text" name="author" value="<%= product.author %>" /><br/>
         Description: <textarea name="description" value="<%= product.description %>" ></textarea><br/>
